@@ -13,7 +13,7 @@ class Tileset {
   uint16_t _spacing;
 
 public:
-  typedef decltype(_tiles)::size_type TileIdType;
+  typedef uint16_t TileIdType;
 
   Tileset() = default;
 
@@ -51,7 +51,7 @@ public:
     _tiles.at(tileId).component_container.template RemoveComponent<T>();
   }
 
-  [[nodiscard]] decltype(_tiles)::size_type NumberOfTiles() const { return _tiles.size(); }
+  [[nodiscard]] uint16_t NumberOfTiles() const { return _tiles.size(); }
 
   void SetBitmap(ResourcePtrT<Bitmap> &&bitmap) { _tileset = std::move(bitmap); }
 

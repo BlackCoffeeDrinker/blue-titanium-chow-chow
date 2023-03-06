@@ -20,8 +20,7 @@ class World {
 
   std::string _name;
 
-  Map _map;
-  Tileset _tileset;
+  ResourcePtrT<Map> _map;
   std::list<WorldActor> _actors;
 
   template<typename T>
@@ -65,26 +64,18 @@ public:
       if (position > _size)
         return (T *)(nullptr);
 
-      return _world->template GetComponent<T>(MapToReal(position));
+      return _world->_map->Tileset().template GetComponent<T>(MapToReal(position));
     }
   };
 
   explicit World(std::string name);
 
-  World(Tileset &&t, Map &&m);
-
   ~World();
 
-  void SetMap(Map&& map) { _map = std::move(map); }
+  void SetMap(ResourcePtrT<Map>&& map) { _map = std::move(map); }
 
-  void SetTileset(Tileset &&tileset) { _tileset = std::move(tileset); }
-
-  explicit operator bool() const noexcept { return _map.operator bool() && _tileset.operator bool(); }
-
-  [[nodiscard]] auto Size() const { return _map.Size(); }
-
+  [[nodiscard]] auto Size() const { return _map->Size(); }
   [[nodiscard]] auto Width() const { return Size().x; }
-
   [[nodiscard]] auto Height() const { return Size().y; }
 
   [[nodiscard]] Window MakeWindow(const Vec2D<WorldCoordinateType>& center, const Vec2D<WorldCoordinateType>& size) const {
@@ -109,31 +100,6 @@ public:
    * @return
    */
   std::error_code Insert(Actor* actor, const Vec2D<WorldCoordinateType>& position);
-
-  template<typename T>
-  auto GetComponent(const Vec2D<WorldCoordinateType>& position) const {
-    return _tileset.template GetComponent<T>(_map.Get(position));
-  }
-
-  template<typename T, typename... Args>
-  T *CreateComponentAt(const Vec2D<WorldCoordinateType>& position, Args &&...args) {
-    return _tileset.template CreateComponent<T, Args...>(_map.Get(position), std::forward<Args>(args)...);
-  }
-
-  template<typename T>
-  [[nodiscard]] bool HasComponent(const Vec2D<WorldCoordinateType>& position) const {
-    return _tileset.template HasComponent<T>(_map.Get(position));
-  }
-
-  template<typename T, typename... Args>
-  T *CreateComponent(Tileset::TileIdType tileId, Args &&...args) {
-    return _tileset.template CreateComponent<T, Args...>(tileId, std::forward<Args>(args)...);
-  }
-
-  template<typename T>
-  void RemoveComponent(const Vec2D<WorldCoordinateType>& position) {
-    _tileset.template RemoveComponent<T>(_map.Get(position));
-  }
 
   /**
    * Processes a delta tick

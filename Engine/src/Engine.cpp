@@ -126,14 +126,12 @@ std::error_code Engine::SetOutputScreen(Bitmap *screen) noexcept {
 }
 
 std::error_code Engine::LoadWorld(const std::string &worldName) {
-  _main_logger.Log(source_location::current(), L_INFO, "Opening world {}", worldName);
+  _main_logger.Info(source_location::current(), "Opening world {}", worldName);
 
-  auto mapResource = _resources->Lazy<Map>(worldName);
+  World world(worldName);
+  world.SetMap(_resources->Lazy<Map>(worldName));
 
-  mapResource.Get();
-
-
-  _main_logger.Log(source_location::current(), L_ERROR, "Failed to open world {}", worldName);
+  _main_logger.Error(source_location::current(), "Failed to open world {}", worldName);
   return impl::make_error_code(impl::EngineErrorCode::level_not_found);
 }
 }// namespace e00

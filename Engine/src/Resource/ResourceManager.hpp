@@ -18,13 +18,9 @@ class ResourceManager {
     std::string _name;
     source_location _init;
 
-    std::string name() const override {
-      return _name;
-    }
+    std::string name() const override { return _name; }
 
-    void zero_refs() override {
-      _owner->zero_ref(this);
-    }
+    void zero_refs() override { _owner->zero_ref(this); }
 
     void load() override {
       if (!resource)
@@ -40,11 +36,13 @@ class ResourceManager {
 
   RMContainer *make_container(const std::string &name, type_t type, const source_location &from);
 
-  void zero_ref(RMContainer *resource);
+  void zero_ref(RMContainer *);
 
-  Resource *load(RMContainer *resource);
+  Resource *load(RMContainer *);
 
-  std::error_code AddLoader(type_t type, std::unique_ptr<ResourceLoader> &&loader);
+  void unload(RMContainer *);
+
+  std::error_code AddLoader(type_t type, std::unique_ptr<ResourceLoader> &&);
 
 public:
   ResourceManager();

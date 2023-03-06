@@ -67,13 +67,14 @@ struct ResourcePtrT {
 
   [[nodiscard]] auto UseCount() const { return (cb) ? cb->refs : 0; }
 
-  pointer Get() {
+  pointer Get() const {
     if (!cb) return nullptr;
     if (!cb->resource) cb->load();
     return static_cast<T *>(cb->resource);
   }
-  pointer operator*() { return Get(); }
-  pointer operator->() { return Get(); }
+
+  pointer operator*() const { return Get(); }
+  pointer operator->() const { return Get(); }
 
   void EnsureLoad() {
     if (cb && !cb->resource) cb->load();

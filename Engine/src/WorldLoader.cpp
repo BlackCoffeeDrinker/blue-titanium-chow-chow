@@ -160,8 +160,7 @@ ResourceLoader::Result WorldLoader::ReadLoad(const std::string &name, const std:
     return Result(std::make_error_code(std::errc::invalid_argument));
   }
 
+  _logger.Info(source_location::current(), "Map loaded successfully");
   return Result(std::move(theMap));
 }
-
-
 }// namespace e00::impl

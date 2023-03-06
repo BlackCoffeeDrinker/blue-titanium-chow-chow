@@ -43,8 +43,7 @@ public:
   Map(Map &&other) noexcept
     : _size(other._size),
       _data(std::move(other._data)),
-      _options(std::move(other._options)) {
-  }
+      _options(std::move(other._options)) {}
 
   ~Map() override = default;
 
@@ -77,7 +76,6 @@ public:
   void SetTileset(Tileset&& set) { _tileset = std::move(set); }
 
   [[nodiscard]] const Tileset& Tileset() const { return _tileset; }
-
   [[nodiscard]] WorldCoordinateType Width() const { return _size.x; }
   [[nodiscard]] WorldCoordinateType Height() const { return _size.y; }
   [[nodiscard]] Vec2D<WorldCoordinateType> Size() const { return _size; }

@@ -4,13 +4,7 @@
 namespace e00 {
 World::World(std::string name)
   : _name(std::move(name)),
-    _map(),
-    _tileset() {
-}
-
-World::World(Tileset &&t, Map &&m)
-  : _map(std::move(m)),
-    _tileset(std::move(t))  {
+    _map() {
 }
 
 World::~World() = default;
