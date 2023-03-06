@@ -1,4 +1,3 @@
-#include <Windows.h>
 #include <memory>
 #include <string>
 #include <iostream>
@@ -167,11 +166,59 @@ static void MainLoop(const std::unique_ptr<e00::Engine> &engine, SDL_Window *sdl
     // Don't steal every cycle if we're not focused
     if (!hadFocus) {
       // Yield our timeslice
-      Sleep(0);
+      SDL_Delay(0);
     }
   }
 }
 
+void PLATFORM_Run() {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) < 0) {
+    printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+    return;
+  }
+
+  auto engine = CreateGameEngine();
+  if (!engine) {
+    printf("Unable to start engine");
+    return;
+  }
+
+  printf("--------------------------------------------------------------------------\n");
+  printf("Game: %s\n", engine->Name().data());
+  printf("--------------------------------------------------------------------------\n");
+
+  SDL_Window *window = SDL_CreateWindow(
+    engine->Name().data(),
+    SDL_WINDOWPOS_UNDEFINED,
+    SDL_WINDOWPOS_UNDEFINED,
+    640,
+    480,
+    SDL_WINDOW_ALLOW_HIGHDPI);
+
+  std::unique_ptr<SDLBitmap> screen_bitmap = std::make_unique<SDLBitmap>(SDL_GetWindowSurface(window));
+  if (const auto ec = engine->SetOutputScreen(screen_bitmap.get())) {
+    printf("Error: %s\n", ec.message().data());
+    return;
+  }
+
+  if (const auto ec = engine->Init()) {
+    printf("Error: %s\n", ec.message().data());
+    return;
+  }
+
+  {
+    e00::Color colors[] = { { 142, 197, 181 }, { 112, 173, 164 }, { 91, 154, 154 }, { 77, 125, 141 }, { 54, 84, 113 }, { 42, 66, 104 }, { 25, 36, 73 }, { 21, 13, 55 }, { 20, 7, 38 }, { 12, 22, 52 }, { 16, 45, 64 }, { 22, 68, 77 }, { 31, 96, 94 }, { 46, 129, 114 }, { 64, 158, 116 }, { 98, 187, 125 }, { 121, 205, 122 }, { 36, 13, 57 }, { 56, 21, 78 }, { 85, 30, 102 }, { 113, 45, 122 }, { 146, 66, 143 }, { 173, 96, 143 }, { 146, 181, 184 }, { 134, 157, 162 }, { 121, 135, 142 }, { 103, 108, 120 }, { 89, 89, 102 }, { 71, 68, 78 }, { 63, 58, 67 }, { 54, 47, 55 }, { 42, 35, 40 }, { 14, 2, 10 }, { 52, 15, 33 }, { 78, 31, 50 }, { 116, 52, 68 }, { 140, 69, 78 }, { 162, 89, 89 }, { 179, 115, 106 }, { 198, 149, 128 }, { 210, 174, 145 }, { 229, 204, 171 }, { 242, 233, 205 }, { 242, 223, 167 }, { 223, 182, 132 }, { 210, 149, 103 }, { 191, 110, 80 }, { 178, 78, 61 }, { 164, 48, 69 }, { 149, 36, 82 } };
+
+    //_system->SetPalette(colors);
+  }
+
+  MainLoop(engine, window);
+
+  SDL_DestroyWindow(window);
+  SDL_Quit();
+}
+
+#ifdef WIN32
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, PWSTR pCmdLine, int nCmdShow) {
   AllocConsole();
 
@@ -193,49 +240,13 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, PWSTR pCmd
     std::wcin.clear();
   }
 
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) < 0) {
-    printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-    return -1;
-  }
+  PLATFORM_Run();
 
-  auto engine = CreateGameEngine();
-  if (!engine) {
-    printf("Unable to start engine");
-    return -1;
-  }
-
-  printf("--------------------------------------------------------------------------\n");
-  printf("Game: %s\n", engine->Name().data());
-  printf("--------------------------------------------------------------------------\n");
-
-  SDL_Window *window = SDL_CreateWindow(
-    engine->Name().data(),
-    SDL_WINDOWPOS_UNDEFINED,
-    SDL_WINDOWPOS_UNDEFINED,
-    640,
-    480,
-    SDL_WINDOW_ALLOW_HIGHDPI);
-
-  std::unique_ptr<SDLBitmap> screen_bitmap = std::make_unique<SDLBitmap>(SDL_GetWindowSurface(window));
-  if (const auto ec = engine->SetOutputScreen(screen_bitmap.get())) {
-    printf("Error: %s\n", ec.message().data());
-    return -1;
-  }
-
-  if (const auto ec = engine->Init()) {
-    printf("Error: %s\n", ec.message().data());
-    return -1;
-  }
-
-  {
-    e00::Color colors[] = { { 142, 197, 181 }, { 112, 173, 164 }, { 91, 154, 154 }, { 77, 125, 141 }, { 54, 84, 113 }, { 42, 66, 104 }, { 25, 36, 73 }, { 21, 13, 55 }, { 20, 7, 38 }, { 12, 22, 52 }, { 16, 45, 64 }, { 22, 68, 77 }, { 31, 96, 94 }, { 46, 129, 114 }, { 64, 158, 116 }, { 98, 187, 125 }, { 121, 205, 122 }, { 36, 13, 57 }, { 56, 21, 78 }, { 85, 30, 102 }, { 113, 45, 122 }, { 146, 66, 143 }, { 173, 96, 143 }, { 146, 181, 184 }, { 134, 157, 162 }, { 121, 135, 142 }, { 103, 108, 120 }, { 89, 89, 102 }, { 71, 68, 78 }, { 63, 58, 67 }, { 54, 47, 55 }, { 42, 35, 40 }, { 14, 2, 10 }, { 52, 15, 33 }, { 78, 31, 50 }, { 116, 52, 68 }, { 140, 69, 78 }, { 162, 89, 89 }, { 179, 115, 106 }, { 198, 149, 128 }, { 210, 174, 145 }, { 229, 204, 171 }, { 242, 233, 205 }, { 242, 223, 167 }, { 223, 182, 132 }, { 210, 149, 103 }, { 191, 110, 80 }, { 178, 78, 61 }, { 164, 48, 69 }, { 149, 36, 82 } };
-
-    //_system->SetPalette(colors);
-  }
-
-  MainLoop(engine, window);
-
-  SDL_DestroyWindow(window);
-  SDL_Quit();
   return 0;
 }
+#else
+int main(int, char**) {
+  PLATFORM_Run();
+  return 0;
+}
+#endif

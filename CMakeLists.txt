@@ -23,12 +23,12 @@ add_subdirectory(Game_Light)
 #######################################################################################################################
 ## Level 2: Platform specific
 #######################################################################################################################
-if (WIN32)
-    message(STATUS "Building for the WIN32 platform")
-    add_subdirectory(Platform_WIN)
-elseif (DJGPP)
+if (DJGPP)
     message(STATUS "Building for MS-DOS Protected mode")
     add_subdirectory(Platform_DOS)
+else()
+    message(STATUS "Building for the SDL platform")
+    add_subdirectory(Platform_SDL)
 endif ()
 
 # Keep CMake happy
