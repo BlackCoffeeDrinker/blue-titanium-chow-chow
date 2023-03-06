@@ -17,8 +17,6 @@
 #include "Scripting/ScriptEngine.hpp"
 
 namespace e00 {
-class ResourceManager;
-
 struct Configuration {
 };
 
@@ -26,46 +24,32 @@ struct Configuration {
  * Root engine class, you should subclass this for your game logic
  */
 class Engine {
-  Logger _main_logger;
+  class State;
+  friend State;
 
   struct ActionInstance {
     Action action;
     std::chrono::milliseconds when;
-
     constexpr ActionInstance() : action(), when(0) {}
-
     constexpr ActionInstance(Action action, std::chrono::milliseconds mili) : action(action), when(mili) {}
   };
 
-  class State;
-  friend State;
-
+  Logger _main_logger;
   bool _initialized;
   bool _needToQuit;
   bool _flagAfterInit;
-
-  // Current game time
-  std::chrono::milliseconds _current_time;
-
-  // Actions to be executed next tick
-  detail::CircularBuffer<ActionInstance, 254> _actions_to_process;
-
-  // Action to their bindings
-  std::map<Action, std::unique_ptr<Binding>> _action_binding;
-
-  // Input event to actions
-  std::map<InputEvent, Action> _input_binding;
-
-  // Persistent script engine
-  std::unique_ptr<ScriptEngine> _script_engine;
-
-  // Resource manager
-  std::unique_ptr<ResourceManager> _resources;
-
-  // Current state of the Engine
-  std::unique_ptr<State> _current_state;
+  std::chrono::milliseconds _current_time;//< Current game time
+  detail::CircularBuffer<ActionInstance, 254> _actions_to_process;//< Actions to be executed next tick
+  std::map<Action, std::unique_ptr<Binding>> _action_binding;//< Action to their bindings
+  std::map<InputEvent, Action> _input_binding;//< Input event to actions
+  std::unique_ptr<ScriptEngine> _script_engine;//< Persistent script engine
+  std::list<std::unique_ptr<detail::ControlBlock>> _loaded_resources_cb;// << TODO: Find better container
+  std::unique_ptr<State> _current_state;//< Current state of the Engine
+  std::unique_ptr<World> _current_world;//< Currently main world
 
   std::error_code AddActionBinding(std::unique_ptr<Binding> &&bindingToAdd);
+
+  detail::ControlBlock *MakeResourceContainer(const std::string &name, type_t type, const source_location &from);
 
 protected:
   explicit Engine();
@@ -92,6 +76,8 @@ protected:
   }
 
   virtual std::unique_ptr<Stream> OpenResource(const std::string &resourceName, type_t expectedType) = 0;
+
+
 
 public:
   /**
@@ -197,5 +183,17 @@ public:
    * @return
    */
   std::error_code LoadWorld(const std::string &worldName);
+
+  /**
+   *
+   * @tparam T
+   * @param name
+   * @param from
+   * @return
+   */
+  template<typename T>
+  ResourcePtrT<T> LazyResource(const std::string &name, const source_location &from = source_location::current()) {
+    return ResourcePtrT<T>(MakeResourceContainer(name, type_id<T>(), from));
+  }
 };
 }// namespace e00

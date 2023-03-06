@@ -7,17 +7,15 @@
 #include <memory>
 
 namespace e00 {
-class ResourceManager;
-
 class ResourceLoader {
   type_t _for_resource_id;
 
 protected:
-  ResourceManager *_resource_manager;
+  Engine* _engine;
 
   explicit ResourceLoader(type_t type)
     : _for_resource_id(type),
-      _resource_manager(nullptr) {}
+      _engine(nullptr) {}
 
 public:
   virtual ~ResourceLoader() = default;
@@ -30,7 +28,7 @@ public:
     explicit Result(std::unique_ptr<Resource> &&r) : error(), resource(std::move(r)) {}
   };
 
-  void SetResourceLoader(ResourceManager* loader) { _resource_manager = loader; }
+  void SetResourceLoader(Engine* loader) { _engine = loader; }
 
   virtual bool CanLoad(const std::unique_ptr<Stream> &stream) = 0;
 

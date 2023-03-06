@@ -4,9 +4,33 @@
 #include "InternalActions.hpp"
 #include "EngineState.h"
 
-#include "Resource/ResourceManager.hpp"
+namespace {
+class EngineResource : public e00::detail::ControlBlock {
+  e00::Engine *_owner;
+  e00::type_t _type;
+  std::string _name;
+  e00::source_location _init;
 
-#include "WorldLoader.hpp"
+public:
+  EngineResource(e00::Engine *e, e00::type_t t, std::string n, e00::source_location s)
+    : _owner(e), _type(t), _name(std::move(n)), _init(s) {
+    refs = 0;
+    resource = nullptr;
+  }
+
+  ~EngineResource() override = default;
+
+  e00::type_t type() const override { return _type; }
+  std::string name() const override { return _name; }
+
+  void zero_refs() override {
+  }
+
+  std::error_code load() override {
+    return std::error_code();
+  }
+};
+}// namespace
 
 namespace e00 {
 Action Engine::BuiltInAction_Quit() {
@@ -19,14 +43,30 @@ Engine::Engine() : _main_logger(platform::CreateSink("Engine")),
                    _flagAfterInit(true),
                    _current_time(0),
                    _script_engine(ScriptEngine::Create()),
-                   _resources(std::make_unique<ResourceManager>()),
                    _current_state() {
   _main_logger.Log(source_location::current(), L_VERBOSE, "E0 Starting");
-  _resources->SetStreamOpener([&](const auto &a1, auto a2) { return OpenResource(a1, a2); });
-  _resources->AddLoader<Map, impl::WorldLoader>();
 }
 
 Engine::~Engine() = default;
+
+detail::ControlBlock *Engine::MakeResourceContainer(const std::string &name, type_t type, const source_location &from) {
+  // TODO: make this better
+  for (auto i = _loaded_resources_cb.begin(); i != _loaded_resources_cb.end(); i++) {
+    const auto &er = (*i);
+
+    if (er->type() == type && er->name() == name) {
+      _main_logger.Info(source_location::current(), "Resource {} of type {} already known", name, type);
+      return (*i).get();
+    }
+  }
+
+  // We didn't find it so make a new container
+  auto &ret = _loaded_resources_cb.emplace_back(std::make_unique<EngineResource>(this, type, name, from));
+
+  _main_logger.Info(source_location::current(), "New resource {} of type {} asked at {}:{}", name, type, from.file_name(), from.line());
+
+  return ret.get();
+}
 
 std::error_code Engine::AddActionBinding(std::unique_ptr<Binding> &&bindingToAdd) {
   _action_binding.erase(bindingToAdd->action());
@@ -128,10 +168,19 @@ std::error_code Engine::SetOutputScreen(Bitmap *screen) noexcept {
 std::error_code Engine::LoadWorld(const std::string &worldName) {
   _main_logger.Info(source_location::current(), "Opening world {}", worldName);
 
-  World world(worldName);
-  world.SetMap(_resources->Lazy<Map>(worldName));
+  auto map = LazyResource<Map>(worldName);
+  if (auto ec = map.EnsureLoad()) {
+    _main_logger.Error(source_location::current(), "Failed to open world {}: {}", worldName, ec.message());
+    return ec;
+  }
 
-  _main_logger.Error(source_location::current(), "Failed to open world {}", worldName);
-  return impl::make_error_code(impl::EngineErrorCode::level_not_found);
+  _current_world = std::make_unique<World>(worldName);
+  _current_world->SetMap(std::move(map));
+
+  // Tell the script engine that we loaded a new map
+
+
+
+  return {};
 }
 }// namespace e00

@@ -130,8 +130,6 @@ add_library(Engine00 STATIC
         src/ScriptEngine/Lua/NamedFunction.hpp
         src/WorldLoader.cpp
         src/WorldLoader.hpp
-        src/Resource/ResourceManager.cpp
-        src/Resource/ResourceManager.hpp
         src/Resource/ResourceLoader.cpp
         src/Resource/ResourceLoader.hpp)
 
@@ -147,7 +145,7 @@ target_include_directories(Engine00
         )
 
 target_compile_definitions(Engine00
-        PUBLIC VERSION= "${CMAKE_PROJECT_VERSION}"
+        PUBLIC E00_VERSION="${CMAKE_PROJECT_VERSION}"
         )
 
 # Add third-party libraries

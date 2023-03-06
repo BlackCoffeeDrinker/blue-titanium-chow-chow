@@ -6,16 +6,19 @@
 #include "Resource.hpp"
 
 namespace e00 {
-class ResourceManager;
+class Engine;
 
 namespace detail {
   struct ControlBlock {
     Resource *resource;
     uint32_t refs;
 
+    virtual ~ControlBlock() = default;
+
     virtual std::string name() const = 0;
+    virtual type_t type() const = 0;
     virtual void zero_refs() = 0;
-    virtual void load() = 0;
+    virtual std::error_code load() = 0;
   };
 }// namespace detail
 
@@ -76,12 +79,13 @@ struct ResourcePtrT {
   pointer operator*() const { return Get(); }
   pointer operator->() const { return Get(); }
 
-  void EnsureLoad() {
-    if (cb && !cb->resource) cb->load();
+  std::error_code EnsureLoad() {
+    if (cb && !cb->resource) return cb->load();
+    return {};
   }
 
 private:
-  friend class e00::ResourceManager;
+  friend class e00::Engine;
   detail::ControlBlock *cb;
 
   explicit ResourcePtrT(detail::ControlBlock *cb) : cb(cb) { AddRef(); }

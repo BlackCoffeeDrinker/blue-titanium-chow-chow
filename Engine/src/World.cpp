@@ -1,5 +1,4 @@
 #include <Engine.hpp>
-#include "Engine/World.hpp"
 
 namespace e00 {
 World::World(std::string name)
@@ -20,6 +19,7 @@ std::error_code World::Insert(Actor *actor, const Vec2D<WorldCoordinateType> &po
 
   return {};
 }
+
 void World::Tick(const std::chrono::milliseconds &delta) noexcept {
   for (auto& actor : _actors) {
     

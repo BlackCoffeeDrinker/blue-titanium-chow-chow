@@ -1,5 +1,4 @@
 #include "WorldLoader.hpp"
-#include "Resource/ResourceManager.hpp"
 #include "EngineError.hpp"
 #include "nlohmann/json.hpp"
 
@@ -144,7 +143,7 @@ ResourceLoader::Result WorldLoader::ReadLoad(const std::string &name, const std:
     const auto margin = tileset_json.find("margin");
 
     Tileset tileset(tilecount->get<uint32_t>());
-    tileset.SetBitmap(_resource_manager->Lazy<Bitmap>(image->get<std::string>()));
+    tileset.SetBitmap(_engine->LazyResource<Bitmap>(image->get<std::string>()));
     tileset.SetSpacing(spacing->get<uint16_t>());
     tileset.SetMargin(margin->get<uint16_t>());
     tileset.SetTilesize({ tilewidth->get<uint16_t>(), tileheight->get<uint16_t>() });
