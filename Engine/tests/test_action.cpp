@@ -19,7 +19,7 @@ public:
     return "TestActionCategory";
   }
 
-  [[nodiscard]] std::string_view message(int binding) const override {
+  [[nodiscard]] std::string_view message(uint32_t binding) const override {
     return magic_enum::enum_name(static_cast<TestActions>(binding));
   }
 };

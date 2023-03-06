@@ -94,6 +94,7 @@ class Sink : public e00::LoggerSink {
 
     void log(const e00::detail::LogMessage &msg) override {
       fprintf(stderr, "[%s] %s\n", _name.c_str(), msg.payload.data());
+      fflush(stderr);
     }
 
     void flush() override {

@@ -6,16 +6,19 @@ namespace experimental {
  */
 struct source_location {
   static constexpr source_location current(
-    const char *file = __builtin_FILE(),
-    const char *func = __builtin_FUNCTION(),
-    uint_least32_t line =  __builtin_LINE(),
-    uint_least32_t col = 0) noexcept {
-    return {file, func, line, col};
+    uint_least32_t line = __builtin_LINE(),
+    const uint_least32_t col = __builtin_COLUMN(),
+    const char *const file = __builtin_FILE(),
+    const char *const func = __builtin_FUNCTION()) noexcept {
+    source_location ret;
+    ret._line = line;
+    ret._col = col;
+    ret._file = file;
+    ret._func = func;
+    return ret;
   }
 
-
-  constexpr source_location() noexcept : _file("unknown"), _func(_file), _line(0), _col(0) {}
-  constexpr source_location(const char *file, const char *func, uint_least32_t line, uint_least32_t col = 0) noexcept : _file(file), _func(func), _line(line), _col(col) {}
+  constexpr source_location() noexcept = default;
 
   [[nodiscard]] constexpr uint_least32_t line() const noexcept { return _line; }
   [[nodiscard]] constexpr uint_least32_t column() const noexcept { return _col; }
@@ -23,10 +26,10 @@ struct source_location {
   [[nodiscard]] constexpr const char *function_name() const noexcept { return _func; }
 
 private:
-  const char *_file;
-  const char *_func;
-  const uint_least32_t _line;
-  const uint_least32_t _col;
+  uint_least32_t _line{};
+  uint_least32_t _col{};
+  const char *_file = "";
+  const char *_func = "";
 };
 }// namespace experimental
 

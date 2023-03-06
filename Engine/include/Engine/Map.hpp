@@ -4,16 +4,17 @@ namespace e00 {
 /**
  * Raw map data
  */
-class Map {
+class Map : public Resource {
 public:
   using Position = Vec2D<WorldCoordinateType>;
 
 private:
-  struct TileOptions {};
+  struct TileOptions : public ComponentContainer {};
 
   Vec2D<WorldCoordinateType> _size;
   std::vector<Tileset::TileIdType> _data;
   std::vector<TileOptions> _options;
+  Tileset _tileset;
 
   [[nodiscard]] WorldCoordinateType LayerSize() const { return _size.Area(); }
 
@@ -45,7 +46,7 @@ public:
       _options(std::move(other._options)) {
   }
 
-  ~Map() = default;
+  ~Map() override = default;
 
   Map &operator=(const Map &other) {
     if (&other != this) {
@@ -73,33 +74,13 @@ public:
 
   explicit operator bool() const noexcept { return _size.x > 0 && _size.y > 0; }
 
+  void SetTileset(Tileset&& set) { _tileset = std::move(set); }
+
+  [[nodiscard]] const Tileset& Tileset() const { return _tileset; }
+
   [[nodiscard]] WorldCoordinateType Width() const { return _size.x; }
-
   [[nodiscard]] WorldCoordinateType Height() const { return _size.y; }
-
   [[nodiscard]] Vec2D<WorldCoordinateType> Size() const { return _size; }
-
-  std::error_code LoadBulk(uint8_t *data);
-
-  template<typename InputIt>
-  std::error_code LoadBulk(InputIt first, InputIt last) {
-    // Make sure it's the right size
-    if (std::distance(first, last) != _data.size()) {
-      return std::make_error_code(std::errc::invalid_argument);
-    }
-
-    // Copy the data
-    auto current = first;
-    auto dest = _data.begin();
-    while (current != last) {
-      *dest = *current;
-
-      current++;
-      dest++;
-    }
-
-    return {};
-  }
 
   [[nodiscard]] Tileset::TileIdType HighestTitleId() const {
     return *std::max_element(std::begin(_data), std::end(_data));

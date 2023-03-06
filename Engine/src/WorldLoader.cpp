@@ -1,10 +1,9 @@
-
 #include "WorldLoader.hpp"
+#include "Resource/ResourceManager.hpp"
 #include "EngineError.hpp"
 #include "nlohmann/json.hpp"
 
 namespace e00::impl {
-
 class WorldLoader::Impl {
   mutable Logger _logger;
   nlohmann::json _world_json;
@@ -45,54 +44,43 @@ public:
   [[nodiscard]] auto &world_json() const { return _world_json; }
 };
 
-WorldLoader::WorldLoader(const std::string &name, const std::unique_ptr<Stream> &worldStream)
-  : _logger(platform::CreateSink("WorldLoader")),
-    _impl(new WorldLoader::Impl),
-    _name(name),
-    _input(worldStream) {
-  // TODO: Don't load everything into memory twice
-  std::string json_str;
-  json_str.resize(_input->stream_size());
-  _input->read(_input->stream_size(), json_str.data());
-
-  // Parse the world file & make sure it's valid
-  _impl->parse(json_str);
+WorldLoader::WorldLoader()
+  : ResourceLoader(type_id<Map>()),
+    _logger(platform::CreateSink("WorldLoader")),
+    _impl(new WorldLoader::Impl) {
 }
 
 WorldLoader::~WorldLoader() {
   delete _impl;
 }
 
-bool WorldLoader::is_valid() const {
-  // Make sure the JSON wasn't discarded
-  if (_impl->world_json().is_discarded()) {
-    return false;
-  }
-
-  // Make sure we have the minimum required fields
-  if (!_impl->contains_all("width", "height", "type", "layers", "tilesets")) {
-    return false;
-  }
-
-
+bool WorldLoader::CanLoad(const std::unique_ptr<Stream> &stream) {
   return true;
 }
 
-World WorldLoader::build() const {
-  // Create the container
-  World tmpWorld(_name);
+ResourceLoader::Result WorldLoader::ReadLoad(const std::string &name, const std::unique_ptr<Stream> &stream) {
+  // TODO: Don't load everything into memory twice
+  std::string json_str;
+  json_str.resize(stream->stream_size());
+  stream->read(stream->stream_size(), json_str.data());
+
+  // Parse the world file & make sure it's valid
+  _impl->parse(json_str);
 
   int width, height;
   if (!_impl->get("width", width) || !_impl->get("height", height)) {
-    // todo
-    abort();
+    _logger.Info(source_location::current(), "Width, Height is not present");
+    return Result(std::make_error_code(std::errc::invalid_argument));
   }
+
+  // Create the map!
+  auto theMap = std::make_unique<Map>(width, height);
 
   // Read the map
   const auto &layers = _impl->world_json().find("layers");
   if (layers == _impl->world_json().end() || !layers->is_array()) {
-    // todo
-    abort();
+    _logger.Info(source_location::current(), "Layers isn't array");
+    return Result(std::make_error_code(std::errc::invalid_argument));
   }
 
   // Read all the layers
@@ -105,51 +93,74 @@ World WorldLoader::build() const {
     auto layer_data = layer.find("data");
 
     if (layer_width != width || layer_height != height) {
-      // todo
-      abort();
+      // TODO
+      _logger.Info(source_location::current(), "Width, Height is not present in layer");
+      return Result(std::make_error_code(std::errc::invalid_argument));
     }
 
     if (layer_data == layer.end() || !layer_data->is_array()) {
-      // todo
-      abort();
+      // TODO
+      _logger.Info(source_location::current(), "Layer data is not an array");
+      return Result(std::make_error_code(std::errc::invalid_argument));
     }
 
-    Map tmpMap(layer_width, layer_height);
-    if (auto ec = tmpMap.LoadBulk(layer_data->begin(), layer_data->end())) {
-      // todo
-      abort();
+    auto current = layer_data->begin();
+    auto last = layer_data->end();
+
+    // Make sure it's the right size
+    if (std::distance(current, last) != theMap->Size().Area()) {
+      // TODO
+      _logger.Info(source_location::current(), "Layer data is the wrong size");
+      return Result(std::make_error_code(std::errc::invalid_argument));
     }
 
-    tmpWorld.SetMap(std::move(tmpMap));
+    // Copy the data
+    uint32_t i = 0;
+    while (current != last) {
+      theMap->Set(Map::Position(i % layer_width, i / layer_width), current->get<uint32_t>());
+      i++;
+      current++;
+    }
+
     break;
   }
 
-  // Make the tilemap
+  // Ref the tileset
   const auto &tilesets = _impl->world_json().find("tilesets");
   if (tilesets == _impl->world_json().end() || !tilesets->is_array()) {
-    // todo
-    abort();
+    _logger.Error(source_location::current(), "No tileset in file");
+    return Result(std::make_error_code(std::errc::invalid_argument));
   }
 
-  for (const auto& tileset : *tilesets) {
-    const auto firstgid = tileset.find("firstgid")->get<int>();
-    const auto tilewidth = tileset.find("tilewidth")->get<int>();
-    const auto tileheight = tileset.find("tileheight")->get<int>();
-    const auto spacing = tileset.find("spacing")->get<int>();
-    const auto margin = tileset.find("margin")->get<int>();
-    const auto tilecount = tileset.find("tilecount")->get<int>();
-    const auto image = tileset.find("image")->get<std::string>();
-    const auto name = tileset.find("name")->get<std::string>();
+  for (const auto &tileset_json : *tilesets) {
+    const auto firstgid = tileset_json.find("firstgid");
+    const auto image = tileset_json.find("image");
+    const auto imageheight = tileset_json.find("imageheight");
+    const auto imagewidth = tileset_json.find("imagewidth");
+    const auto tilecount = tileset_json.find("tilecount");
+    const auto tileheight = tileset_json.find("tileheight");
+    const auto tilewidth = tileset_json.find("tilewidth");
+    const auto spacing = tileset_json.find("spacing");
+    const auto margin = tileset_json.find("margin");
 
-    _logger.Log(source_location::current(), L_VERBOSE, "Loading tileset {}", name);
+    Tileset tileset(tilecount->get<uint32_t>());
+    tileset.SetBitmap(_resource_manager->Lazy<Bitmap>(image->get<std::string>()));
+    tileset.SetSpacing(spacing->get<uint16_t>());
+    tileset.SetMargin(margin->get<uint16_t>());
+    tileset.SetTilesize({ tilewidth->get<uint16_t>(), tileheight->get<uint16_t>() });
 
-    Tileset tmpSet(tilecount);
-
-
+    theMap->SetTileset(std::move(tileset));
+    break;
   }
 
+  // Do some checks
+  if (theMap->HighestTitleId() > theMap->Tileset().NumberOfTiles()) {
+    _logger.Error(source_location::current(), "Inconsistent number of tiles, maps has ID {} but tileset knows about {}", theMap->HighestTitleId(), theMap->Tileset().NumberOfTiles());
 
-  return tmpWorld;
+    return Result(std::make_error_code(std::errc::invalid_argument));
+  }
+
+  return Result(std::move(theMap));
 }
 
 

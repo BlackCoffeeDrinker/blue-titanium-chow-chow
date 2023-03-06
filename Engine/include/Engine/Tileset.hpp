@@ -6,8 +6,11 @@ class Tileset {
     ComponentContainer component_container;
   };
 
+  Vec2D<uint16_t> _tileset_size;
   std::vector<Tile> _tiles;
   ResourcePtrT<e00::Bitmap> _tileset;
+  uint16_t _margin;
+  uint16_t _spacing;
 
 public:
   typedef decltype(_tiles)::size_type TileIdType;
@@ -47,5 +50,16 @@ public:
   void RemoveComponent(TileIdType tileId) {
     _tiles.at(tileId).component_container.template RemoveComponent<T>();
   }
+
+  [[nodiscard]] decltype(_tiles)::size_type NumberOfTiles() const { return _tiles.size(); }
+
+  void SetBitmap(ResourcePtrT<Bitmap> &&bitmap) { _tileset = std::move(bitmap); }
+
+  void SetMargin(uint16_t margin) { _margin = margin; }
+
+  void SetSpacing(uint16_t padding) { _spacing = padding; }
+
+  void SetTilesize(Vec2D<uint16_t> tilesize) { _tileset_size = tilesize; }
+
 };
 }

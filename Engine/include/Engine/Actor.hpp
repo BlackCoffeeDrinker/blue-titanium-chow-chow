@@ -18,7 +18,7 @@ private:
   BodyType _type;
 
 public:
-  void Size(const Vec2D<WorldCoordinateType>& newSize) { _size = newSize; }
+  void Size(const Vec2D<WorldCoordinateType> &newSize) { _size = newSize; }
 
   /**
    * Size of this actor
@@ -31,6 +31,5 @@ public:
    * @return
    */
   [[nodiscard]] auto Type() const noexcept { return _type; }
-
 };
 }// namespace e00

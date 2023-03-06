@@ -22,7 +22,8 @@ Engine::Engine() : _main_logger(platform::CreateSink("Engine")),
                    _resources(std::make_unique<ResourceManager>()),
                    _current_state() {
   _main_logger.Log(source_location::current(), L_VERBOSE, "E0 Starting");
-  _resources->SetLoader([&](const auto& a1, auto a2) { return OpenResource(a1, a2); });
+  _resources->SetStreamOpener([&](const auto &a1, auto a2) { return OpenResource(a1, a2); });
+  _resources->AddLoader<Map, impl::WorldLoader>();
 }
 
 Engine::~Engine() = default;
@@ -127,20 +128,10 @@ std::error_code Engine::SetOutputScreen(Bitmap *screen) noexcept {
 std::error_code Engine::LoadWorld(const std::string &worldName) {
   _main_logger.Log(source_location::current(), L_INFO, "Opening world {}", worldName);
 
-  // Ask the game to load the level named
-  if (auto worldResStream = OpenResource(worldName, nullptr)) {
-    // Pass it on the world loader to parse the data
-    impl::WorldLoader loader(worldName, worldResStream);
+  auto mapResource = _resources->Lazy<Map>(worldName);
 
-    // Is this a valid world ?
-    if (!loader.is_valid()) {
-      _main_logger.Log(source_location::current(), L_ERROR, "World {} exists but is invalid", worldName);
-      return impl::make_error_code(impl::EngineErrorCode::level_is_not_valid);
-    }
+  mapResource.Get();
 
-    // Load the world
-    auto world = loader.build();
-  }
 
   _main_logger.Log(source_location::current(), L_ERROR, "Failed to open world {}", worldName);
   return impl::make_error_code(impl::EngineErrorCode::level_not_found);

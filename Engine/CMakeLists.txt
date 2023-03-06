@@ -130,7 +130,10 @@ add_library(Engine00 STATIC
         src/ScriptEngine/Lua/NamedFunction.hpp
         src/WorldLoader.cpp
         src/WorldLoader.hpp
-        src/Resource/ResourceManager.cpp src/Resource/ResourceManager.hpp src/Resource/ResourceLoader.cpp src/Resource/ResourceLoader.hpp)
+        src/Resource/ResourceManager.cpp
+        src/Resource/ResourceManager.hpp
+        src/Resource/ResourceLoader.cpp
+        src/Resource/ResourceLoader.hpp)
 
 set_target_properties(Engine00
         PROPERTIES

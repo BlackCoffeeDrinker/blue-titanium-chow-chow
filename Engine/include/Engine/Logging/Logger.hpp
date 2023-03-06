@@ -40,7 +40,7 @@ class Logger {
 
   // common implementation for after templated public api has been resolved
   template<typename... Args>
-  void log_(const experimental::source_location &loc, LoggingSeverity sev, std::string_view fmt, const Args& ...args) {
+  void log_(const experimental::source_location &loc, LoggingSeverity sev, std::string_view fmt, const Args& ...args) const {
     std::string payload;
     detail::LogMessage log_message{
       loc,
@@ -77,6 +77,28 @@ public:
   void Log(const experimental::source_location &loc, LoggingSeverity sev, std::string_view fmt, const Args& ...args) {
     log_(loc, sev, fmt, std::forward<const Args&>(args)...);
   }
+
+  // Helpers
+  template<typename... Args>
+  void Verbose(const experimental::source_location &loc, std::string_view fmt, Args ...args) const {
+    log_(loc, L_VERBOSE, fmt, std::forward<Args>(args)...);
+  }
+
+  template<typename... Args>
+  void Error(const experimental::source_location &loc, std::string_view fmt, Args ...args) const {
+    log_(loc, L_ERROR, fmt, std::forward<Args>(args)...);
+  }
+
+  template<typename... Args>
+  void Info(const experimental::source_location &loc, std::string_view fmt, Args ...args) const {
+    log_(loc, L_INFO, fmt, std::forward<Args>(args)...);
+  }
+
+  template<typename... Args>
+  void Warning(const experimental::source_location &loc, std::string_view fmt, Args ...args) const {
+    log_(loc, L_WARNING, fmt, std::forward<Args>(args)...);
+  }
+
 
   void AddSink(LoggerSink *sink) {
     const auto it = std::find(_sinks.begin(), _sinks.end(), sink);
