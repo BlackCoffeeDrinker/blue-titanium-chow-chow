@@ -1,0 +1,16 @@
+[submodule "Engine/vendor/lodepng"]
+	path = Engine/vendor/lodepng
+	url = https://github.com/lvandeve/lodepng.git
+[submodule "Engine/vendor/magic_enum"]
+	path = Engine/vendor/magic_enum
+	url = https://github.com/Neargye/magic_enum.git
+[submodule "Engine/vendor/lua"]
+	path = Engine/vendor/lua
+	url = https://github.com/lua/lua.git
+	branch = v5.4.0
+[submodule "Engine/vendor/inih"]
+	path = Engine/vendor/inih
+	url = https://github.com/benhoyt/inih.git
+[submodule "Engine/vendor/json"]
+	path = Engine/vendor/json
+	url = https://github.com/nlohmann/json.git

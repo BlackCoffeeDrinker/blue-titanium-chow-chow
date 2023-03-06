@@ -1,0 +1,12 @@
+*.gdt
+*.gpr
+cmake-build-*/
+out/
+.vs/
+OBJ/
+.idea/
+SDL/SDL2-*/
+
+venv/
+test/*.bmp
+OLD-*
