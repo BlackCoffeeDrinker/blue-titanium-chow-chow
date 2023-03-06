@@ -29,10 +29,4 @@ endif ()
 #######################################################################################################################
 ## SDL2
 #######################################################################################################################
-set(SDL_LIB_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/SDL2-2.0.16)
-add_library(SDL SHARED IMPORTED GLOBAL)
-target_include_directories(SDL INTERFACE ${SDL_LIB_ROOT}/include)
-set_target_properties(SDL PROPERTIES
-        IMPORTED_IMPLIB "${SDL_LIB_ROOT}/lib/${TARGET_CPU}/SDL2.lib"
-        IMPORTED_LOCATION "${SDL_LIB_ROOT}/lib/${TARGET_CPU}/SDL2.dll"
-        )
+add_subdirectory(SDL EXCLUDE_FROM_ALL)

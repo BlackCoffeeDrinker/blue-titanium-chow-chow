@@ -14,3 +14,6 @@
 [submodule "Engine/vendor/json"]
 	path = Engine/vendor/json
 	url = https://github.com/nlohmann/json.git
+[submodule "Platform_SDL/vendor/SDL"]
+	path = Platform_SDL/vendor/SDL
+	url = https://github.com/libsdl-org/SDL.git
