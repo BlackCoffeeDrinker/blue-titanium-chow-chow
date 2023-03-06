@@ -10,7 +10,11 @@ SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(vendor)
 
-add_executable(Game)
+if (WIN32)
+    add_executable(Game WIN32)
+else()
+    add_executable(Game)
+endif()
 target_link_libraries(Game Engine00 SDL2::SDL2-static GameBlueTitanium)
 
 add_subdirectory(src)
