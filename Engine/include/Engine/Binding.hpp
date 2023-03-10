@@ -34,7 +34,7 @@ private:
  */
 template<typename Fn>
 std::unique_ptr<Binding> make_binding(const Action &action, Fn &&fn) {
-  using FnD = typename std::decay<Fn>::type;
+  using FnD = typename std::decay_t<Fn>;
 
   struct InternalBinding : FnD, Binding {
     constexpr InternalBinding(Action action, FnD &&t)

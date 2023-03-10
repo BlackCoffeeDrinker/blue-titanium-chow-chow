@@ -13,7 +13,7 @@ class ProxyFunction;
 namespace detail {
   template<typename T>
   struct Bare_Type {
-    using type = typename std::remove_cv<typename std::remove_pointer<typename std::remove_reference<T>::type>::type>::type;
+    using type = typename std::remove_cv_t<typename std::remove_pointer_t<typename std::remove_reference_t<T>>>;
   };
 
   // Make a unique pointer for types; this gets us somewhat of an RTTI
@@ -176,12 +176,12 @@ namespace detail {
   template<typename T>
   struct GetTypeInfo {
     constexpr static TypeInfo get() noexcept {
-      return TypeInfo(std::is_const<typename std::remove_pointer<typename std::remove_reference<T>::type>::type>::value,
-        std::is_reference<T>::value,
-        std::is_pointer<T>::value,
-        std::is_void<T>::value,
-        (std::is_arithmetic<T>::value || std::is_arithmetic<typename std::remove_reference<T>::type>::value) && !std::is_same<typename std::remove_const<typename std::remove_reference<T>::type>::type, bool>::value,
-        std::is_class<T>::value,
+      return TypeInfo(std::is_const_v<typename std::remove_pointer_t<typename std::remove_reference_t<T>>>,
+        std::is_reference_v<T>,
+        std::is_pointer_v<T>,
+        std::is_void_v<T>,
+        (std::is_arithmetic_v<T> || std::is_arithmetic_v<typename std::remove_reference_t<T>>) && !std::is_same_v<typename std::remove_const_t<typename std::remove_reference_t<T>>, bool>,
+        std::is_class_v<T>,
         make_type_id<T>(),
         make_type_id<typename Bare_Type<T>::type>(),
         make_name<T>());
@@ -191,12 +191,12 @@ namespace detail {
   template<typename T>
   struct GetTypeInfo<std::unique_ptr<T>> {
     constexpr static TypeInfo get() noexcept {
-      return TypeInfo(std::is_const<T>::value,
-        std::is_reference<T>::value,
-        std::is_pointer<T>::value,
-        std::is_void<T>::value,
-        (std::is_arithmetic<T>::value || std::is_arithmetic<typename std::remove_reference<T>::type>::value) && !std::is_same<typename std::remove_const<typename std::remove_reference<T>::type>::type, bool>::value,
-        std::is_class<T>::value,
+      return TypeInfo(std::is_const_v<T>,
+        std::is_reference_v<T>,
+        std::is_pointer_v<T>,
+        std::is_void_v<T>,
+        (std::is_arithmetic_v<T> || std::is_arithmetic_v<typename std::remove_reference_t<T>>) && !std::is_same_v<typename std::remove_const_t<typename std::remove_reference_t<T>>, bool>,
+        std::is_class_v<T>,
         make_type_id<std::unique_ptr<T>>(),
         make_type_id<typename Bare_Type<T>::type>(),
         make_name<T>());
@@ -209,12 +209,12 @@ namespace detail {
   template<typename T>
   struct GetTypeInfo<std::reference_wrapper<T>> {
     constexpr static TypeInfo get() noexcept {
-      return TypeInfo(std::is_const<T>::value,
-        std::is_reference<T>::value,
-        std::is_pointer<T>::value,
-        std::is_void<T>::value,
-        (std::is_arithmetic<T>::value || std::is_arithmetic<typename std::remove_reference<T>::type>::value) && !std::is_same<typename std::remove_const<typename std::remove_reference<T>::type>::type, bool>::value,
-        std::is_class<T>::value,
+      return TypeInfo(std::is_const_v<T>,
+        std::is_reference_v<T>,
+        std::is_pointer_v<T>,
+        std::is_void_v<T>,
+        (std::is_arithmetic_v<T> || std::is_arithmetic_v<typename std::remove_reference_t<T>>) && !std::is_same_v<typename std::remove_const_t<typename std::remove_reference_t<T>>, bool>,
+        std::is_class_v<T>,
         make_type_id<std::reference_wrapper<T>>(),
         make_type_id<typename Bare_Type<T>::type>(),
         make_name<T>());
@@ -224,12 +224,12 @@ namespace detail {
   template<typename T>
   struct GetTypeInfo<const std::reference_wrapper<T> &> {
     constexpr static TypeInfo get() noexcept {
-      return TypeInfo(std::is_const<T>::value,
-        std::is_reference<T>::value,
-        std::is_pointer<T>::value,
-        std::is_void<T>::value,
-        (std::is_arithmetic<T>::value || std::is_arithmetic<typename std::remove_reference<T>::type>::value) && !std::is_same<typename std::remove_const<typename std::remove_reference<T>::type>::type, bool>::value,
-        std::is_class<T>::value,
+      return TypeInfo(std::is_const_v<T>,
+        std::is_reference_v<T>,
+        std::is_pointer_v<T>,
+        std::is_void_v<T>,
+        (std::is_arithmetic_v<T> || std::is_arithmetic_v<typename std::remove_reference_t<T>>) && !std::is_same_v<typename std::remove_const_t<typename std::remove_reference_t<T>>, bool>,
+        std::is_class_v<T>,
         make_type_id<const std::reference_wrapper<T> &>(),
         make_type_id<typename Bare_Type<T>::type>(),
         make_name<T>());

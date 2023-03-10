@@ -9,7 +9,7 @@ public:
   using Position = Vec2D<WorldCoordinateType>;
 
 private:
-  struct TileOptions : public ComponentContainer {};
+  struct TileOptions : public ComponentRegistry {};
 
   Vec2D<WorldCoordinateType> _size;
   std::vector<Tileset::TileIdType> _data;

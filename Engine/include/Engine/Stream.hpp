@@ -123,7 +123,7 @@ public:
    *
    * @param str the buffer to use
    * @param max_length max length of the buffer
-   * @return the buffer, or nullptr if an error occured
+   * @return the buffer, or nullptr if an error occurred
    */
   char *read_line_into(char *str, int max_length) {
     if (max_length <= 0)
@@ -133,7 +133,7 @@ public:
       return nullptr;
 
     char *p = str;
-    char *end = str + max_length;
+    char const *end = str + max_length;
 
     // Read until we hit \n or until there's no buffer space left
     while (p != end) {
@@ -171,9 +171,8 @@ public:
   bool read(T &out) { return !read(sizeof(T), &out); }
 
   template<typename T>
-  typename std::remove_cv<T>::type read() {
-    typename std::remove_cv<T>::type read_value;
-    if (read(read_value)) {
+  typename std::remove_cv_t<T> read() {
+    if (typename std::remove_cv_t<T> read_value; read(read_value)) {
       return read_value;
     }
     return {};

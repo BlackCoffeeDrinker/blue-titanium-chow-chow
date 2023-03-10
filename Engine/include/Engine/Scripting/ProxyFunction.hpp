@@ -31,7 +31,7 @@ protected:
   }
 
   /* Actually do the call */
-  virtual BoxedValue do_call(const FunctionParams &params) const = 0;
+  [[nodiscard]] virtual BoxedValue do_call(const FunctionParams &params) const = 0;
 
 public:
   ProxyFunction()
@@ -71,7 +71,7 @@ public:
       return do_call(params);
     }
 
-    return BoxedValue();
+    return {};
   }
 
   template<typename... Args>

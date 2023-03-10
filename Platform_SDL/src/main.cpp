@@ -104,7 +104,6 @@ class Sink : public e00::LoggerSink {
       fflush(stderr);
     }
 };
-
   return std::make_unique<Sink>(name);
 }
 }
@@ -175,7 +174,7 @@ static void MainLoop(const std::unique_ptr<e00::Engine> &engine, SDL_Window *sdl
   }
 }
 
-void PLATFORM_Run() {
+static void PLATFORM_Run() {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) < 0) {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     return;
@@ -186,10 +185,6 @@ void PLATFORM_Run() {
     printf("Unable to start engine");
     return;
   }
-
-  printf("--------------------------------------------------------------------------\n");
-  printf("Game: %s\n", engine->Name().data());
-  printf("--------------------------------------------------------------------------\n");
 
   SDL_Window *window = SDL_CreateWindow(
     engine->Name().data(),

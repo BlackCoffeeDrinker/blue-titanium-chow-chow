@@ -17,11 +17,7 @@
 #include <utility>
 #include <list>
 
-// Global Configs
-namespace e00 {
-static constexpr size_t WORLD_PARTITIONING_MAX_ITEMS_PER_NODE = 4;
-using WorldCoordinateType = uint16_t;
-}
+#include <Engine/Config.hpp>
 
 #include <Engine/Detail/StringFormat.hpp>
 #include <Engine/Detail/TypeId.hpp>
@@ -34,8 +30,7 @@ using WorldCoordinateType = uint16_t;
 #include <Engine/Math.hpp>
 #include <Engine/SpacePartition.hpp>
 
-#include <Engine/Component.hpp>
-#include <Engine/ComponentContainer.hpp>
+#include <Engine/ComponentRegistry.hpp>
 
 #include <Engine/Action.hpp>
 #include <Engine/Binding.hpp>
@@ -45,14 +40,14 @@ using WorldCoordinateType = uint16_t;
 #include <Engine/ResourcePtr.hpp>
 
 #include <Engine/GUI/Menu.hpp>
-#include <Engine/GUI/Bitmap.hpp>
+#include "Engine/Resource/Bitmap.hpp"
 #include <Engine/GUI/FontGlyph.hpp>
-#include <Engine/GUI/Font.hpp>
-#include <Engine/GUI/Sprite.hpp>
+#include "Engine/Resource/Font.hpp"
+#include "Engine/Resource/Sprite.hpp"
 #include <Engine/GUI/Window.hpp>
 
-#include <Engine/Tileset.hpp>
-#include <Engine/Map.hpp>
+#include "Engine/Resource/Tileset.hpp"
+#include "Engine/Resource/Map.hpp"
 #include <Engine/Actor.hpp>
 #include <Engine/World.hpp>
 

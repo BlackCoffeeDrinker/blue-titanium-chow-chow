@@ -54,31 +54,38 @@ add_subdirectory(vendor)
 #######################################################################################################################
 add_library(Engine00 STATIC
         include/Engine.hpp
+        include/Engine/Config.hpp
         include/Engine/Action.hpp
         include/Engine/Actor.hpp
         include/Engine/Binding.hpp
-        include/Engine/Component.hpp
-        include/Engine/ComponentContainer.hpp
+        include/Engine/ComponentRegistry.hpp
         include/Engine/Engine.hpp
         include/Engine/InputEvent.hpp
-        include/Engine/Map.hpp
         include/Engine/Math.hpp
         include/Engine/SpacePartition.hpp
         include/Engine/Stream.hpp
-        include/Engine/Tileset.hpp
         include/Engine/World.hpp
+        include/Engine/Resource.hpp
+        include/Engine/ResourcePtr.hpp
+
         include/Engine/Detail/Array.hpp
         include/Engine/Detail/CircularBuffer.hpp
         include/Engine/Detail/StringFormat.hpp
         include/Engine/Detail/TypeId.hpp
-        include/Engine/GUI/Bitmap.hpp
-        include/Engine/GUI/Font.hpp
+
+        include/Engine/Resource/Map.hpp
+        include/Engine/Resource/Tileset.hpp
+        include/Engine/Resource/Bitmap.hpp
+        include/Engine/Resource/Font.hpp
+        include/Engine/Resource/Sprite.hpp
+
         include/Engine/GUI/FontGlyph.hpp
         include/Engine/GUI/Menu.hpp
         include/Engine/GUI/Window.hpp
-        include/Engine/GUI/Sprite.hpp
+
         include/Engine/Logging/SourceLocation.hpp
         include/Engine/Logging/Logger.hpp
+
         include/Engine/Scripting/BoxedCast.hpp
         include/Engine/Scripting/BoxedValue.hpp
         include/Engine/Scripting/FunctionParams.hpp
@@ -92,8 +99,6 @@ add_library(Engine00 STATIC
         include/Engine/Scripting/detail/HandleReturn.hpp
         include/Engine/Scripting/detail/NativeFunctionT.hpp
         include/Engine/Scripting/detail/Utils.hpp
-        include/Engine/Resource.hpp
-        include/Engine/ResourcePtr.hpp
 
         src/Engine.cpp
         src/EngineError.cpp

@@ -15,8 +15,8 @@ namespace detail {
 
     virtual ~ControlBlock() = default;
 
-    virtual std::string name() const = 0;
-    virtual type_t type() const = 0;
+    [[nodiscard]] virtual std::string name() const = 0;
+    [[nodiscard]] virtual type_t type() const = 0;
     virtual void zero_refs() = 0;
     virtual std::error_code load() = 0;
   };
@@ -65,10 +65,10 @@ struct ResourcePtrT {
   }
 
   [[nodiscard]] std::string Name() const {
-    return (cb) ? cb->name() : "";
+    return cb ? cb->name() : "";
   }
 
-  [[nodiscard]] auto UseCount() const { return (cb) ? cb->refs : 0; }
+  [[nodiscard]] auto UseCount() const { return cb ? cb->refs : 0; }
 
   pointer Get() const {
     if (!cb) return nullptr;

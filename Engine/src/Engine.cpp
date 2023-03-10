@@ -4,34 +4,6 @@
 #include "InternalActions.hpp"
 #include "EngineState.h"
 
-namespace {
-class EngineResource : public e00::detail::ControlBlock {
-  e00::Engine *_owner;
-  e00::type_t _type;
-  std::string _name;
-  e00::source_location _init;
-
-public:
-  EngineResource(e00::Engine *e, e00::type_t t, std::string n, e00::source_location s)
-    : _owner(e), _type(t), _name(std::move(n)), _init(s) {
-    refs = 0;
-    resource = nullptr;
-  }
-
-  ~EngineResource() override = default;
-
-  e00::type_t type() const override { return _type; }
-  std::string name() const override { return _name; }
-
-  void zero_refs() override {
-  }
-
-  std::error_code load() override {
-    return std::error_code();
-  }
-};
-}// namespace
-
 namespace e00 {
 Action Engine::BuiltInAction_Quit() {
   return impl::make_action(impl::EngineAction::Quit);
@@ -44,28 +16,61 @@ Engine::Engine() : _main_logger(platform::CreateSink("Engine")),
                    _current_time(0),
                    _script_engine(ScriptEngine::Create()),
                    _current_state() {
-  _main_logger.Log(source_location::current(), L_VERBOSE, "E0 Starting");
+  _main_logger.Verbose(source_location::current(), "E0 Starting");
 }
 
 Engine::~Engine() = default;
 
 detail::ControlBlock *Engine::MakeResourceContainer(const std::string &name, type_t type, const source_location &from) {
-  // TODO: make this better
-  for (auto i = _loaded_resources_cb.begin(); i != _loaded_resources_cb.end(); i++) {
-    const auto &er = (*i);
-
-    if (er->type() == type && er->name() == name) {
+  for (const auto& a : _loaded_resources_cb) {
+    if (a->type() == type && a->name() == name) {
       _main_logger.Info(source_location::current(), "Resource {} of type {} already known", name, type);
-      return (*i).get();
+      return a.get();
     }
   }
 
+  class R : public detail::ControlBlock {
+    Engine *_owner;
+    type_t _type;
+    std::string _name;
+    source_location _init;
+
+  public:
+    R(e00::Engine *e, e00::type_t t, std::string n, e00::source_location s)
+      : _owner(e), _type(t), _name(std::move(n)), _init(s) {
+      refs = 0;
+      resource = nullptr;
+    }
+
+    ~R() override = default;
+
+    [[nodiscard]] std::string name() const override { return _name; }
+    [[nodiscard]] type_t type() const override { return _type; }
+
+    void zero_refs() override { _owner->ZeroRefControlBlock(this); }
+
+    std::error_code load() override { return _owner->LoadControlBlock(this); }
+  };
+
   // We didn't find it so make a new container
-  auto &ret = _loaded_resources_cb.emplace_back(std::make_unique<EngineResource>(this, type, name, from));
+  auto const &ret = _loaded_resources_cb.emplace_back(std::make_unique<R>(this, type, name, from));
 
   _main_logger.Info(source_location::current(), "New resource {} of type {} asked at {}:{}", name, type, from.file_name(), from.line());
 
   return ret.get();
+}
+
+void Engine::ZeroRefControlBlock(detail::ControlBlock *cb) {
+
+}
+
+std::error_code Engine::LoadControlBlock(detail::ControlBlock *cb) {
+  if (auto stream = OpenResource(cb->name(), cb->type())) {
+    // Try loading it
+
+  }
+
+  return impl::make_error_code(impl::EngineErrorCode::resource_not_found);
 }
 
 std::error_code Engine::AddActionBinding(std::unique_ptr<Binding> &&bindingToAdd) {
@@ -86,9 +91,9 @@ std::vector<Action> Engine::Actions() const noexcept {
 }
 
 InputEvent Engine::InputBindingForAction(const Action &action) const noexcept {
-  for (const auto &i : _input_binding)
-    if (i.second == action)
-      return i.first;
+  for (const auto& [inputEvent, inputAction] : _input_binding)
+    if (inputAction == action)
+      return inputEvent;
 
   return {};
 }
@@ -106,6 +111,8 @@ bool Engine::IsRunning() const noexcept {
 
 void Engine::Tick(const std::chrono::milliseconds &delta) noexcept {
   if (!_flagAfterInit) {
+    _main_logger.Info(source_location::current(),"Game: {}", Name());
+
     OnFirstTick();
     _flagAfterInit = true;
   }
@@ -119,7 +126,7 @@ void Engine::Tick(const std::chrono::milliseconds &delta) noexcept {
   _current_time += delta;
 
   // Process actions
-  _actions_to_process.ForEach([&](const auto &action) {
+  _actions_to_process.ForEach([this](const auto &action) {
     // If we do have an action for it, is there a global binding for it ?
     if (const auto it = _action_binding.find(action.action);
         it != _action_binding.end()) {

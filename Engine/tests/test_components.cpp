@@ -2,14 +2,14 @@
 #include <Engine.hpp>
 
 TEST_CASE("Components Can Be Added To ControlBlock") {
-  e00::ComponentContainer container;
+  e00::ComponentRegistry container;
   class TestComponent : public e00::ComponentT<TestComponent> {};
   auto* c = container.CreateComponent<TestComponent>();
   REQUIRE(c != nullptr);
 }
 
 TEST_CASE("Components Can Be Retrieved From ControlBlock") {
-  e00::ComponentContainer container;
+  e00::ComponentRegistry container;
   class TestComponent : public e00::ComponentT<TestComponent> {};
   auto* c = container.CreateComponent<TestComponent>();
   REQUIRE(c != nullptr);
@@ -28,7 +28,7 @@ TEST_CASE("Components Are Deleted With ControlBlock") {
   int c = 0;
 
   {
-    e00::ComponentContainer container;
+    e00::ComponentRegistry container;
     container.CreateComponent<TestComponent>(c);
     REQUIRE(c == 1);
   }
@@ -37,7 +37,7 @@ TEST_CASE("Components Are Deleted With ControlBlock") {
 }
 
 TEST_CASE("Components Types Are Unique Within a ControlBlock") {
-  e00::ComponentContainer container;
+  e00::ComponentRegistry container;
   class TestComponent : public e00::ComponentT<TestComponent> {};
 
   auto* c = container.CreateComponent<TestComponent>();
@@ -50,7 +50,7 @@ TEST_CASE("Components Types Are Unique Within a ControlBlock") {
 }
 
 TEST_CASE("Components is NULL if a type is not found") {
-  e00::ComponentContainer container;
+  e00::ComponentRegistry container;
   class TestComponent : public e00::ComponentT<TestComponent> {};
   REQUIRE(container.GetComponent<TestComponent>() == nullptr);
 }

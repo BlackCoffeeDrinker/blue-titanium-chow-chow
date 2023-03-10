@@ -5,8 +5,8 @@
 #include <chrono>
 
 #include "Actor.hpp"
-#include "Map.hpp"
-#include "Tileset.hpp"
+#include "Engine/Resource/Map.hpp"
+#include "Engine/Resource/Tileset.hpp"
 
 namespace e00 {
 /**

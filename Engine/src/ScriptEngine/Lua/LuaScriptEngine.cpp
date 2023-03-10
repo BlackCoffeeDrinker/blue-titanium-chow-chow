@@ -160,8 +160,7 @@ std::error_code LuaScriptEngine::parse(const std::unique_ptr<e00::Stream> &strea
     auto *state = static_cast<ReaderState *>(ud);
     *sz = 0;
 
-    const auto max_read = state->stream->max_read();
-    if (max_read > 0) {
+    if (const auto max_read = state->stream->max_read(); max_read > 0) {
       *sz = 255;
       if (*sz > max_read) {
         *sz = max_read;
@@ -193,13 +192,12 @@ std::unique_ptr<scripting::ProxyFunction> LuaScriptEngine::get_function(const st
   }
 
   // take a ref to it
-  return std::unique_ptr<scripting::ProxyFunction>(
-    new RefFunction(fn_name, _state, luaL_ref(_state, LUA_REGISTRYINDEX), preferred_return_type));
+  //return std::unique_ptr<scripting::ProxyFunction>(new RefFunction(fn_name, _state, luaL_ref(_state, LUA_REGISTRYINDEX), preferred_return_type));
+  return std::make_unique<RefFunction>(fn_name, _state, luaL_ref(_state, LUA_REGISTRYINDEX), preferred_return_type);
 }
 
 const std::unique_ptr<scripting::ProxyFunction> &LuaScriptEngine::get_method_for_type(const TypeInfo &type, const std::string &method_name) const {
-  const auto it = _methods.find(type.bare_id());
-  if (it != _methods.end()) {
+  if (const auto it = _methods.find(type.bare_id()); it != _methods.end()) {
     const auto mit = it->second.find(method_name);
     if (mit != it->second.end()) {
       return mit->second;

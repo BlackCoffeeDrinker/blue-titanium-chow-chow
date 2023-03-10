@@ -6,7 +6,7 @@ namespace e00::impl {
 enum class EngineErrorCode {
   not_configured = 1,
   invalid_argument,
-  level_not_found,
+  resource_not_found,
   bad_configuration_file,
   level_is_not_valid,
   error_building_level,

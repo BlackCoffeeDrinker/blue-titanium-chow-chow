@@ -7,9 +7,9 @@ struct EngineErrorCategory : std::error_category {
     switch (static_cast<e00::impl::EngineErrorCode>(ev)) {
       case e00::impl::EngineErrorCode::not_configured: return "not configured";
       case e00::impl::EngineErrorCode::invalid_argument: return "invalid argument";
-      case e00::impl::EngineErrorCode::level_not_found: return "specified level was not found";
+      case e00::impl::EngineErrorCode::resource_not_found: return "specified resource was not found";
       case e00::impl::EngineErrorCode::bad_configuration_file: return "bad configuration file";
-      case e00::impl::EngineErrorCode::level_is_not_valid: return "not a valid level";
+      case e00::impl::EngineErrorCode::level_is_not_valid: return "not a valid resource";
       case e00::impl::EngineErrorCode::error_building_level: return "unable to general level data";
       default: return "";
     }

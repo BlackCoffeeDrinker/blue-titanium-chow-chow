@@ -6,7 +6,7 @@ namespace e00 {
  * or be interacted with. It lives in a world and acts as a rigid
  * body
  */
-class Actor : public ComponentContainer {
+class Actor : public ComponentRegistry {
 public:
   enum class BodyType {
     Static,// Unmovable actor

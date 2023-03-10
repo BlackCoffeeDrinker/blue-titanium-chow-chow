@@ -3,7 +3,7 @@
 namespace e00 {
 class Tileset {
   struct Tile {
-    ComponentContainer component_container;
+    ComponentRegistry component_container;
   };
 
   Vec2D<uint16_t> _tileset_size;
@@ -13,7 +13,7 @@ class Tileset {
   uint16_t _spacing;
 
 public:
-  typedef uint16_t TileIdType;
+  using TileIdType = uint16_t;
 
   Tileset() = default;
 

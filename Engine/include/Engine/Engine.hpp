@@ -51,6 +51,10 @@ class Engine {
 
   detail::ControlBlock *MakeResourceContainer(const std::string &name, type_t type, const source_location &from);
 
+  void ZeroRefControlBlock(detail::ControlBlock*);
+
+  std::error_code LoadControlBlock(detail::ControlBlock*);
+
 protected:
   explicit Engine();
 

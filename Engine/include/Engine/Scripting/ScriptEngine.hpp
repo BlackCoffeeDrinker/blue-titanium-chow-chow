@@ -36,7 +36,7 @@ public:
   }
 
   template<typename Fn>
-  void register_function(const std::string &fn_name, Fn &&fn) {
+  void register_function(const std::string &fn_name, Fn fn) {
     if (valid_fn_name(fn_name)) {
       auto function_t = scripting::detail::make_function_t(fn, scripting::detail::FunctionSignature{ fn });
       for (const auto &i : function_t->parameters()) {
@@ -50,7 +50,7 @@ public:
   template<typename VarType>
   void register_variable(const std::string &var_name, VarType var) {
     register_type<VarType>();
-    add_variable(var_name, scripting::BoxedValue(std::forward<VarType>(var)));
+    add_variable(var_name, scripting::BoxedValue(var));
   }
 
   virtual std::unique_ptr<scripting::ProxyFunction> get_function(const std::string &fn_name, scripting::TypeInfo preferred_return_type) = 0;
