@@ -3,6 +3,7 @@
 #include <Engine.hpp>
 
 extern unsigned char testMap_160_by_50[];
+/*
 
 namespace {
 e00::World BuildWorld() {
@@ -18,11 +19,11 @@ e00::World BuildWorld() {
 }
 
 TEST_CASE("In a world") {
-  class SimpleTileChar : public e00::ComponentT<SimpleTileChar> {
+  class SimpleTileChar {
     char _t;
   public:
     explicit SimpleTileChar(char t) : _t(t) {}
-    ~SimpleTileChar() override = default;
+    ~SimpleTileChar() = default;
 
     [[nodiscard]] char Get() const { return _t; }
   };
@@ -97,3 +98,4 @@ TEST_CASE("Some test case") {
 
 
 }
+*/

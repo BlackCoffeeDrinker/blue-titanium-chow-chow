@@ -1,5 +1,13 @@
 #include <catch2/catch.hpp>
 
+#include <Engine.hpp>
+
+namespace platform {
+std::unique_ptr<e00::LoggerSink> CreateSink(const std::string &) {
+  return nullptr;
+}
+}// namespace platform
+
 namespace {
 double ColorCompare_REF(int r1, int g1, int b1, int r2, int g2, int b2) {
   double luma1 = (r1 * 299 + g1 * 587 + b1 * 114) / (255.0 * 1000);
@@ -10,5 +18,3 @@ double ColorCompare_REF(int r1, int g1, int b1, int r2, int g2, int b2) {
          + lumadiff * lumadiff;
 }
 }// namespace
-
-

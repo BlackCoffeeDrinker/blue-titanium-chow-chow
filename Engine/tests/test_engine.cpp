@@ -3,12 +3,17 @@
 
 class AnEngine : public e00::Engine {
 public:
-  explicit AnEngine(const e00::Configuration& config) : e00::Engine(config) {}
+  explicit AnEngine() : e00::Engine() {}
 
   ~AnEngine() = default;
 
   [[nodiscard]] std::string_view Name() const noexcept override {
     return "TestEngine";
+  }
+
+protected:
+  std::unique_ptr<e00::Stream> OpenResource(const std::string &resourceName, e00::type_t expectedType) override {
+    return { };
   }
 
 protected:
@@ -18,7 +23,7 @@ protected:
 
 
 std::unique_ptr<e00::Engine> CreateGameEngine(const e00::Configuration &configuration) {
-  return std::make_unique<AnEngine>(configuration);
+  return std::make_unique<AnEngine>();
 }
 
 /********************************************************************************************/
